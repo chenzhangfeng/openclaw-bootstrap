@@ -1,0 +1,69 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+*.userossc
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+venv/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs
+logs/
+*.log
+
+# Temp
+tmp/
+temp/
+.cache/
+
+# Build / dist
+dist/
+build/
+out/
+
+# Test / coverage
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+
+# Secrets / local config
+.env
+.env.*
+*.local
+secrets.json
+secrets.local.json
+*.pem
+*.key
+
+# Archive
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+# Git merge leftovers
+*.orig
+
+.agnet/
