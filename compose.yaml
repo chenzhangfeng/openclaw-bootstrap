@@ -1,0 +1,44 @@
+# Reference compose file for the OpenClaw deployment toolkit.
+# The installer generates a runtime compose file with concrete values under the install directory.
+services:
+  openclaw:
+    container_name: ${OPENCLAW_SERVICE_NAME:-openclaw}
+    image: ${OPENCLAW_IMAGE_REF:-openclaw-managed:latest}
+    build:
+      context: ${OPENCLAW_BUILD_CONTEXT:-.}
+      dockerfile: ${OPENCLAW_DOCKERFILE_NAME:-Dockerfile}
+      args:
+        BASE_IMAGE: ${OPENCLAW_BASE_IMAGE:-python:3.11-slim}
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-}
+        PIP_EXTRA_INDEX_URL: ${PIP_EXTRA_INDEX_URL:-}
+        APT_MIRROR: ${APT_MIRROR:-}
+    restart: unless-stopped
+    working_dir: ${OPENCLAW_RUNTIME_WORKDIR:-/workspace/app}
+    env_file:
+      - ${OPENCLAW_RUNTIME_ENV_FILE:-./runtime.env}
+    ports:
+      - "${OPENCLAW_BIND_ADDRESS:-0.0.0.0}:${OPENCLAW_HOST_PORT:-8080}:${OPENCLAW_CONTAINER_PORT:-8080}"
+    volumes:
+      - ${OPENCLAW_DATA_DIR:-./data}:/var/lib/openclaw
+      - ${OPENCLAW_CONFIG_DIR:-./config}:/etc/openclaw
+      - ${OPENCLAW_LOG_DIR:-./logs}:/var/log/openclaw
+      - ${OPENCLAW_CACHE_DIR:-./cache}:/var/cache/openclaw
+    command:
+      - /bin/sh
+      - -lc
+      - ${OPENCLAW_RUN_CMD:-sleep infinity}
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - ${OPENCLAW_HEALTHCHECK_COMPOSE_CMD:-exit 0}
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: ${OPENCLAW_LOG_MAX_SIZE:-10m}
+        max-file: ${OPENCLAW_LOG_MAX_FILES:-5}

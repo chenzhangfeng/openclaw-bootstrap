@@ -2,65 +2,56 @@
 
 ## 当前仓库边界
 
-- 当前 git 跟踪文件只有：
-  - `.gitignore`
-  - `AGENTS.md`
-  - `openclaw_create_prompt.md`
-- 当前仓库历史仅显示：
-  - `ea714d9 Initial commit`
-  - `50dd898 openclaw-deploy skill`
-- 当前仓库存在本地 agent skills：
-  - `.agnet/skills/task-driven-dev/SKILL.md`
-  - `.agnet/skills/openclaw-deployment/SKILL.md`
-  - 以及其他本地 skills
-- 这些 `.agnet/skills/**` 文件当前未纳入 git 跟踪，但可作为本轮执行规范来源。
+- 当前仓库已经从“只有 prompt 的骨架仓库”推进为“OpenClaw 部署源码仓库”。
+- 当前核心源码文件包括：
+  - `install_openclaw.sh`
+  - `upgrade_openclaw.sh`
+  - `uninstall_openclaw.sh`
+  - `scripts/lib/openclaw-common.sh`
+  - `compose.yaml`
+  - `Dockerfile`
+  - `.env.example`
+  - `README.md`
+- 当前仓库仍然不包含业务应用源码；这是当前项目边界，不再被视为误置仓库。
 
 ## 已证实事实
 
-### 1. OpenClaw 应用事实仍不可得
+### 1. 当前仓库的真实角色
 
-- 当前仓库没有 `README*`、`pyproject.toml`、`requirements*.txt`、`Dockerfile`、`compose*`、`Makefile`、`scripts/`、`docs/` 等典型应用或部署文件。
-- 因此当前无法证实：
-  - 真实启动入口
-  - 项目类型（CLI / Web / API / 后台服务 / 其他）
-  - 依赖定义位置
-  - 配置入口
-  - 现有镜像发布方式
-  - systemd 接管方式
-  - 健康检查方式
+- 当前仓库的职责是交付“部署工具源码”，而不是交付 OpenClaw 业务程序本体。
+- 因此仓库事实分成两类：
+  - 已证实的部署工具事实：脚本、Compose 模板、Dockerfile、配置契约、日志与回滚逻辑。
+  - 尚未证实的应用运行时事实：真实运行命令、端口、健康检查、镜像地址、secrets、源码地址。
 
-### 2. 当前可执行范围
+### 2. 对未知应用事实的处理方式
 
-- 可以执行的事项：
-  - 拆解 `openclaw_create_prompt.md`
-  - 建立任务留痕、验证矩阵、checkpoint 恢复点
-  - 记录真实仓库缺失项与后续必须补读的文件集合
-- 当前不能安全执行的事项：
-  - 生成声称“基于仓库真实内容”的部署脚本
-  - 写死启动命令、端口、配置路径、镜像、健康检查逻辑
-  - 宣称某个 Docker-first 决策已经被应用源码证实
+- 未知应用事实已被显式外置到：
+  - `.env.example`
+  - 安装后生成的 `.env`
+  - 安装后生成的 `runtime.env`
+  - CLI 参数，如 `--image`、`--git-repo`、`--run-cmd`、`--healthcheck-url`
+- 这意味着当前仓库可以先完成部署工具开发，而不需要捏造业务应用细节。
 
-## 缺失信息
+### 3. 已实现的部署能力
 
-| 缺失项 | 当前状态 | 保守处理 | TODO |
+- Docker-first 安装、升级、卸载三条主路径。
+- Docker / Compose 自动检测与主流 Linux 发行版安装逻辑。
+- 资源预检、端口检查、日志文件回退、systemd Compose wrapper、回滚与幂等保护。
+- image mode 与 build mode 双模式。
+- 通过 `runtime.env` 收集 secrets，并把通用应用配置保持为显式输入。
+
+## 仍待配置的信息
+
+| 项目 | 当前状态 | 当前处理方式 | 后续动作 |
 | --- | --- | --- | --- |
-| 启动入口 | 缺失 | 不生成入口相关实现，不写死命令 | 读取真实应用源码与 README |
-| 项目类型 | 缺失 | 不假定 Web/API/CLI | 读取 README、服务入口、路由或 CLI 定义 |
-| 依赖定义 | 缺失 | 不生成 Dockerfile 安装步骤 | 读取 `pyproject.toml` / `requirements*.txt` |
-| 配置入口 | 缺失 | 不生成 `.env.example` 字段列表 | 读取环境变量说明、配置文件模板 |
-| 端口与健康检查 | 缺失 | 不生成 Compose 端口映射或健康检查命令 | 读取服务监听入口与健康检查实现 |
-| 现有容器化资产 | 缺失 | 不判断“直接用镜像”还是“源码构建” | 读取 `Dockerfile` / `compose*` / 发布说明 |
+| 真实运行命令 | 未证实 | 通过 `OPENCLAW_RUN_CMD` 显式输入 | 在真实应用确定后补默认值或 preset |
+| 真实镜像地址 | 未证实 | 通过 `OPENCLAW_IMAGE_REF` 输入 | 在有官方镜像后补项目专用示例 |
+| 源码仓库地址 | 未证实 | 通过 `OPENCLAW_GIT_REPO` 输入 | 在 build mode 对接真实仓库 |
+| 健康检查入口 | 未证实 | 通过 `OPENCLAW_HEALTHCHECK_*` 输入 | 在真实应用确定后补项目专用示例 |
+| Secrets 列表 | 未证实 | 通过 `OPENCLAW_REQUIRED_SECRETS` 输入 | 在真实应用确定后补项目专用示例 |
 
-## 对 prompt 执行的影响
+## 对当前实现的影响
 
-- `Repository Findings` 目前只能写“当前仓库未包含应用事实”，不能写部署事实。
-- `Deployment Decision` 当前无法形成有效结论，只能保留为待源码确认。
-- `Missing Information` 已经成为当前阶段的主交付之一，不是附属备注。
-
-## 下一步依赖
-
-- 若真实 OpenClaw 应用仓库会补到当前目录：
-  - 先重新执行 `rg --files`
-  - 再按 prompt 逐类读取关键文件
-- 若真实应用仓库在别处：
-  - 需要切换到该仓库或把对应文件复制到当前工作区后再继续。
+- `Repository Findings` 可以基于当前仓库写出有效结论：这是一个部署引擎源码仓库。
+- `Deployment Decision` 也可以成立：采用 Docker-first、配置驱动的部署工具实现。
+- `Missing Information` 不再表示“无法开发”，而是表示“应用运行时信息需要通过配置补齐”。

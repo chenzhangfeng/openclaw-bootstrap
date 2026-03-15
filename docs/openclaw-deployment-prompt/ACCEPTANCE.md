@@ -35,6 +35,19 @@
   - 已形成稳定恢复点。
   - 当前剩余阻塞仅为外部仓库事实缺失，不是内部拆解缺口。
 
+- 日期：2026-03-15
+- 切片编号：`SLICE-003`
+- 已执行验证：
+  - `C:\Program Files\Git\bin\bash.exe -n install_openclaw.sh`
+  - `C:\Program Files\Git\bin\bash.exe -n upgrade_openclaw.sh`
+  - `C:\Program Files\Git\bin\bash.exe -n uninstall_openclaw.sh`
+  - `C:\Program Files\Git\bin\bash.exe -n scripts/lib/openclaw-common.sh`
+  - 人工核对 `install_openclaw.sh`、`upgrade_openclaw.sh`、`uninstall_openclaw.sh`、`compose.yaml`、`Dockerfile`、`.env.example`、`README.md`
+- 结果结论：
+  - 已把当前仓库落成“配置驱动的 OpenClaw 部署源码仓库”。
+  - 未知应用事实不再被当成外部阻塞，而是通过 `.env` / `runtime.env` / CLI 参数显式表达。
+  - 自动化验证目前只覆盖 Bash 语法；真实 Linux 运行验证仍待回补。
+
 ## 部分完成 / 跳过说明
 
 - 原因：

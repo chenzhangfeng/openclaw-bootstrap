@@ -4,15 +4,15 @@
 
 | 章节 | 必须包含 | 主要来源 | 当前状态 | 备注 |
 | --- | --- | --- | --- | --- |
-| `Repository Findings` | 启动入口、项目类型、依赖定义、配置入口、容器化现状、证据文件 | 真实 OpenClaw 应用仓库 | blocked | 当前只能明确“仓库缺少这些事实” |
-| `Deployment Decision` | Docker-first 理由、镜像策略、健康检查依据、systemd 接管决策 | `Repository Findings` | blocked | 不能脱离源码臆测 |
+| `Repository Findings` | 当前仓库角色、部署工具事实、应用待配置项、证据文件 | 当前仓库源码 | ready | 现已能基于部署源码仓库角色形成有效结论 |
+| `Deployment Decision` | Docker-first 理由、配置驱动策略、systemd 接管决策 | `Repository Findings` | ready | 不再依赖业务应用源码才能成立 |
 | `Missing Information` | 缺失项、保守默认值、TODO | `DOMAINS/repository-facts.md` | ready | 当前已可输出 |
 | `File Tree` | 将输出的资产结构 | `DOMAINS/prompt-breakdown.md` | ready | 资产集合已拆清 |
-| `Complete Code` | 安装/升级/卸载脚本、Compose、Dockerfile、`.env.example`、文档 | 真实源码 + 阶段性决策 | blocked | 需要真实入口和配置事实 |
-| `Usage Guide` | 安装、参数、交互/非交互示例、升级、卸载 | 部署资产代码 | blocked | 依赖代码完成 |
-| `Verification` | 安装成功验证、容器验证、日志、排障 | 真实健康检查逻辑 + 代码 | blocked | 依赖真实入口 |
-| `Compatibility Notes` | 发行版适配、Docker/Compose 要求、已知限制 | 代码实现 + 仓库事实 | partial | 通用要求可提前写，项目限制需源码确认 |
-| `Safety Notes` | 系统修改、数据删除、宿主机影响、注意事项 | 代码实现 | partial | 通用安全约束已知，具体删除路径需代码确认 |
+| `Complete Code` | 安装/升级/卸载脚本、Compose、Dockerfile、`.env.example`、文档 | 当前仓库源码 | ready | 已完成源码落地 |
+| `Usage Guide` | 安装、参数、交互/非交互示例、升级、卸载 | `README.md` | ready | 已覆盖主要用法 |
+| `Verification` | 安装成功验证、容器验证、日志、排障 | 代码 + 测试矩阵 | partial | 语法验证已完成，真实 Linux smoke 未完成 |
+| `Compatibility Notes` | 发行版适配、Docker/Compose 要求、已知限制 | 代码实现 + `README.md` | partial | 已写通用边界，待 Linux 实机回归 |
+| `Safety Notes` | 系统修改、数据删除、宿主机影响、注意事项 | 代码实现 + `README.md` | partial | 已有实现与说明，待实机回归 |
 
 ## 资产一致性约束
 
