@@ -1,13 +1,13 @@
 # OpenClaw Deployment Prompt State
 
-- 当前阶段：`Implementation Completed, Verifying And Checkpointing`
+- 当前阶段：`Checkpointed After Implementation`
 - 当前任务组：`3. Deployment Asset Execution` / `4. Validation And Handoff`
 - 当前领域：`deployment-toolkit`
 - 当前执行单元：
   - 类型：`slice`
   - 编号：`SLICE-003`
 - 当前分支：`main`
-- 当前 commit：`1fce6d38caed4517d985d134fd151b66b8b529bc`
+- 当前 commit：`66f4a29ea2bcf00d0e4df02374050bbead8d7e62`
 - 当前相关文档：
   - `OUTLINE.md`
   - `DOMAINS/repository-facts.md`
@@ -31,4 +31,4 @@
 - 当前阻塞项：
   - 无阻塞；剩余事项为运行时验证债。
 - 下一步最小动作：
-  - 写入新的 implementation checkpoint，并以显式文件列表提交部署源码与同步后的任务文档。
+  - 在 Linux 主机上回补 `TEST-015` 和 `TEST-016`，优先跑 image mode smoke。

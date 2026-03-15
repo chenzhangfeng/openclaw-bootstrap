@@ -16,7 +16,7 @@
   - `TRACKERS/TEST-MATRIX.md`
   - `ACCEPTANCE.md`
 - git：
-  - commit：`未提交（checkpoint 创建时将紧接着执行窄提交）`
+  - commit：`66f4a29ea2bcf00d0e4df02374050bbead8d7e62`
   - 分支：`main`
 - 关联验证单元：
   - `TEST-002`
@@ -72,7 +72,7 @@
   - `Dockerfile` 是面向 Python 项目的通用实现，真实 OpenClaw 运行时若不同，需要再调优。
   - image mode 的容器内 healthcheck 可能需要按真实镜像能力覆写。
 - 下一步最小动作：
-  - 以显式文件列表提交本次部署源码与文档更新，然后把实际 SHA 回填到 `STATE.md` 与本 checkpoint。
+  - 在 Linux 主机上回补 `TEST-015` 和 `TEST-016`，优先跑 image mode smoke。
 - 下一位 AI 接手提示：
   - 先读 `STATE.md`
   - 再读本 checkpoint
