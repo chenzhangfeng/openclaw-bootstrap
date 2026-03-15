@@ -1,0 +1,37 @@
+# OpenClaw Deployment Prompt State
+
+- 当前阶段：`Checkpointed, Waiting For Repository Facts`
+- 当前任务组：`1. Repository Fact Collection`
+- 当前领域：`deployment-prompt`
+- 当前执行单元：
+  - 类型：`checkpoint`
+  - 编号：`CP-2026-03-15-01`
+- 当前分支：`main`
+- 当前 commit：`50dd8987bbaeefbe34c4d21e3633a01ece0dd1fd`
+- 当前相关文档：
+  - `OUTLINE.md`
+  - `DOMAINS/repository-facts.md`
+  - `DOMAINS/prompt-breakdown.md`
+  - `DOMAINS/output-contract.md`
+  - `TRACKERS/TEST-MATRIX.md`
+  - `ACCEPTANCE.md`
+  - `CHECKPOINTS/2026-03-15-01-scaffold-and-breakdown.md`
+- 最近已验证事项：
+  - `git ls-files`
+  - `rg --files`
+  - `Get-Content -Encoding UTF8 openclaw_create_prompt.md`
+  - `Get-Content -Encoding UTF8 .agnet\\skills\\task-driven-dev\\SKILL.md`
+  - `Get-Content -Encoding UTF8 .agnet\\skills\\openclaw-deployment\\SKILL.md`
+  - 人工核对 `DOMAINS/prompt-breakdown.md` 的资产切片覆盖安装、升级、卸载、Compose、Dockerfile、`.env.example` 和文档输出
+  - 人工核对 `DOMAINS/output-contract.md` 的章节依赖与阻塞映射
+- 当前验证债：
+  - `TEST-002`: `not_run`
+    - 原因：当前仓库未包含 OpenClaw 应用源码、README、依赖清单、Compose、Dockerfile 或运行脚本，无法确认真实启动入口与依赖定义。
+    - 是否阻塞：`no`
+  - `TEST-003`: `not_run`
+    - 原因：当前仓库未包含任何已跟踪容器化资产，无法确认既有镜像、Compose 或健康检查实现。
+    - 是否阻塞：`no`
+- 当前阻塞项：
+  - 缺少真实 OpenClaw 应用仓库内容，无法进入 `Deployment Decision` 与部署代码生成阶段。
+- 下一步最小动作：
+  - 在拿到真实 OpenClaw 应用仓库后，恢复 `1.2`，逐类读取 `README*`、`pyproject.toml`、`requirements*.txt`、`Dockerfile`、`compose*`、`scripts/`、`docs/`。
