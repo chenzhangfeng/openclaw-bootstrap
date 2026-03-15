@@ -16,7 +16,7 @@
   - `TRACKERS/TEST-MATRIX.md`
   - `ACCEPTANCE.md`
 - git：
-  - commit：`未提交（checkpoint 创建时尚未执行窄提交）`
+  - commit：`b734c0d6b77a58f6dd34ebf01b1e4895bd71aa25`
   - 分支：`main`
 - 关联验证单元：
   - `TEST-001`
@@ -65,7 +65,7 @@
     - 是否阻塞：`no`
 - 遗留风险：
   - 若在当前仓库直接写部署脚本，将违反 prompt 中“必须先分析真实仓库文件、禁止臆测入口和端口”的硬约束。
-  - 本 checkpoint 创建时尚未执行 git 提交，需要紧接着做一次窄提交。
+  - 实际稳定提交已生成；本 checkpoint 的 SHA 由后续文档提交回填。
 - 下一步最小动作：
   - 在拿到真实 OpenClaw 应用仓库后，恢复 `1.2`，逐类读取 `README*`、`pyproject.toml`、`requirements*.txt`、`Dockerfile`、`compose*`、`scripts/`、`docs/`。
 - 下一位 AI 接手提示：

@@ -7,7 +7,7 @@
   - 类型：`checkpoint`
   - 编号：`CP-2026-03-15-01`
 - 当前分支：`main`
-- 当前 commit：`50dd8987bbaeefbe34c4d21e3633a01ece0dd1fd`
+- 当前 commit：`b734c0d6b77a58f6dd34ebf01b1e4895bd71aa25`
 - 当前相关文档：
   - `OUTLINE.md`
   - `DOMAINS/repository-facts.md`

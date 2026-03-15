@@ -19,5 +19,5 @@
 | TEST-009 | deployment-assets | review | 确认部署代码资产完整且跨文件一致 | 代码产物集合 | `3.2` | todo | not_run | 人工审阅代码一致性 | 待执行 | `OUTLINE.md` | |
 | TEST-010 | deployment-docs | review | 确认最终输出顺序与说明完整 | 文档产物 | `3.3` | todo | not_run | 人工核对 prompt 合同 | 待执行 | `OUTLINE.md` | |
 | TEST-011 | task-driven-dev | smoke | 确认任务恢复文档与验证矩阵已创建 | `docs/openclaw-deployment-prompt/` | `4.1` | done | passed | 检查文档文件是否存在 | 本次新增任务容器文件 | `docs/openclaw-deployment-prompt/` | |
-| TEST-012 | task-driven-dev | review | 确认 checkpoint 记录 git 状态、验证债和下一步最小动作 | checkpoint | `4.2` | done | passed | 人工审阅 checkpoint | 已确认 checkpoint 记录 git 状态、验证债、风险与恢复动作 | `CHECKPOINTS/2026-03-15-01-scaffold-and-breakdown.md` | checkpoint 创建时 git 提交尚未执行 |
+| TEST-012 | task-driven-dev | review | 确认 checkpoint 记录 git 状态、验证债和下一步最小动作 | checkpoint | `4.2` | done | passed | 人工审阅 checkpoint | 已确认 checkpoint 记录 git 状态、验证债、风险与恢复动作，并回填稳定提交 `b734c0d` | `CHECKPOINTS/2026-03-15-01-scaffold-and-breakdown.md` | checkpoint 由后续文档提交补记实际 SHA |
 | TEST-013 | task-driven-dev | review | 确认最终总结与 TODO 同步到状态文件 | `FINAL.md` / `TODO.md` | `4.3` | todo | not_run | 人工审阅文档一致性 | 待执行 | `FINAL.md` | |
