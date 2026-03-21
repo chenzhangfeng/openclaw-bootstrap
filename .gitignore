@@ -1,9 +1,9 @@
-# OS
+# ===== 操作系统 =====
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Editor
+# ===== 编辑器 / IDE =====
 .vscode/
 .idea/
 *.suo
@@ -12,7 +12,7 @@ desktop.ini
 *.swp
 *.swo
 
-# Python
+# ===== Python =====
 __pycache__/
 *.pyc
 *.pyo
@@ -21,49 +21,87 @@ __pycache__/
 .venv/
 venv/
 
-# Node
+# ===== Node.js / pnpm =====
 node_modules/
+.pnpm-store/
+pnpm-store/
+pnpm-global/
+.pnpm-debug.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+.npmrc.local
+package-lock.json
 
-# Logs
+# ===== 便携版 Node.js 运行时（不提交二进制和运行时缓存）=====
+**/node/
+!launchers/
+!build/
+
+# ===== 构建产物 =====
+dist/
+out/
+build/cache/
+
+# ===== 便携包运行时产物 =====
+openclaw-portable/node/
+openclaw-portable/pnpm-store/
+openclaw-portable/pnpm-global/
+openclaw-portable/browsers/
+openclaw-portable/data/workspace/
+openclaw-portable/openclaw/
+
+# ===== OpenClaw 源码（外部依赖，非本仓库代码）=====
+openclaw/
+
+# ===== 日志 =====
 logs/
 *.log
 
-# Temp
+# ===== 临时文件 / 缓存 =====
 tmp/
 temp/
 .cache/
+.turbo/
+.parcel-cache/
+.next/
+.nuxt/
 
-# Build / dist
-dist/
-build/
-out/
-
-# Test / coverage
+# ===== 测试 / 覆盖率 =====
 .coverage
 coverage/
 htmlcov/
 .pytest_cache/
+.nyc_output/
 
-# Secrets / local config
+# ===== 密钥 / 本地配置 =====
 .env
 .env.*
+!.env.example
 *.local
 secrets.json
 secrets.local.json
 *.pem
 *.key
 
-# Archive
+# ===== 压缩包 =====
 *.zip
 *.tar
 *.tar.gz
+*.tar.xz
 *.7z
+*.rar
 
-# Git merge leftovers
+# ===== Playwright 浏览器缓存 =====
+browsers/
+ms-playwright/
+
+# ===== Git =====
 *.orig
 
-.agnet/
+# ===== 项目私有技能和智能体配置 =====
+.agent/
+
+
+.agent/skills/**/node_modules/
