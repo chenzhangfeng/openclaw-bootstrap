@@ -1,6 +1,7 @@
 param(
     [ValidateSet("fat", "slim")]
-    [string]$Mode = "fat"
+    [string]$Mode = "fat",
+    [string]$OpenClawPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -75,10 +76,92 @@ function Expand-ArchiveToTargetRoot {
     }
 }
 
+function Resolve-OpenClawSourceDir {
+    param(
+        [string]$PreferredPath,
+        [string]$RepoRoot
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($PreferredPath)) {
+        if (-not (Test-Path $PreferredPath)) {
+            throw "[ERROR] OpenClaw source directory not found: $PreferredPath"
+        }
+
+        $resolvedPreferredPath = (Resolve-Path $PreferredPath).Path
+        Require-Path -Path (Join-Path $resolvedPreferredPath "package.json") -Description "OpenClaw package.json"
+        return $resolvedPreferredPath
+    }
+
+    $candidatePaths = @(
+        (Join-Path $RepoRoot "openclaw"),
+        (Join-Path $RepoRoot "openclaw-portable\openclaw")
+    )
+
+    foreach ($candidatePath in $candidatePaths) {
+        if ((Test-Path $candidatePath) -and (Test-Path (Join-Path $candidatePath "package.json"))) {
+            return (Resolve-Path $candidatePath).Path
+        }
+    }
+
+    $searchedPaths = $candidatePaths -join ", "
+    throw "[ERROR] OpenClaw source directory not found. Checked: $searchedPaths"
+}
+
+function Assert-LastExitCode {
+    param(
+        [string]$Description
+    )
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "[ERROR] $Description failed with exit code $LASTEXITCODE"
+    }
+}
+
+function Copy-SourceTree {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SourceRoot,
+        [Parameter(Mandatory = $true)]
+        [string]$DestinationRoot
+    )
+
+    $excludedDirNames = @("node_modules", ".git")
+    $excludedDirPaths = Get-ChildItem -Path $SourceRoot -Directory -Recurse -Force -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -in $excludedDirNames } |
+        Select-Object -ExpandProperty FullName
+
+    if (-not (Test-Path $DestinationRoot)) {
+        New-Item -ItemType Directory -Path $DestinationRoot | Out-Null
+    }
+
+    $robocopyArgs = @(
+        $SourceRoot,
+        $DestinationRoot,
+        "/E",
+        "/R:1",
+        "/W:1",
+        "/NFL",
+        "/NDL",
+        "/NJH",
+        "/NJS",
+        "/NP"
+    )
+
+    if ($excludedDirPaths.Count -gt 0) {
+        $robocopyArgs += "/XD"
+        $robocopyArgs += $excludedDirPaths
+    }
+
+    & robocopy @robocopyArgs | Out-Null
+    if ($LASTEXITCODE -gt 7) {
+        throw "[ERROR] Failed to copy OpenClaw source tree with robocopy. Exit code: $LASTEXITCODE"
+    }
+}
+
 $DistName = "openclaw-win-$Arch-$Mode"
 $DistDir = Join-Path $RepoRoot "dist\$DistName"
 $nodeTarget = Join-Path $DistDir "node"
-$srcDir = Join-Path $RepoRoot "openclaw"
+$srcDir = Resolve-OpenClawSourceDir -PreferredPath $OpenClawPath -RepoRoot $RepoRoot
 $launchersDir = Join-Path $RepoRoot "launchers\windows"
 $portableDir = Join-Path $RepoRoot "portable"
 $environmentAssetRoot = Join-Path $RepoRoot "tools\environment-assets\windows"
@@ -96,8 +179,8 @@ $minGitArchive = Get-ChildItem -Path $environmentDownloadsDir -Filter "MinGit-*-
 Write-Host "=========================================="
 Write-Host "  OpenClaw Portable Builder - Windows $Mode"
 Write-Host "=========================================="
+Write-Host "Using OpenClaw source: $srcDir"
 
-Require-Path -Path $srcDir -Description "OpenClaw source directory"
 Require-Path -Path (Join-Path $srcDir "package.json") -Description "OpenClaw package.json"
 Require-Path -Path $launchersDir -Description "Windows launcher directory"
 Require-Path -Path $portableScriptsDir -Description "portable scripts directory"
@@ -105,6 +188,9 @@ Require-Path -Path $portableDataDir -Description "portable data directory"
 
 # 清理旧产物
 if (Test-Path $DistDir) { Remove-Item $DistDir -Recurse -Force }
+if (Test-Path $DistDir) {
+    Remove-Item -Path $DistDir -Recurse -Force
+}
 New-Item -ItemType Directory -Path $DistDir | Out-Null
 
 # [1/6] 下载 Node.js
@@ -123,9 +209,14 @@ Rename-Item -Path (Join-Path $DistDir $NodeZipName) -NewName "node"
 # [2/6] 复制源码
 Write-Host "`n[2/6] Copying OpenClaw source..."
 $dstSrc = Join-Path $DistDir "openclaw"
-Copy-Item -Path $srcDir -Destination $dstSrc -Recurse -Force
+Copy-SourceTree -SourceRoot $srcDir -DestinationRoot $dstSrc
 $gitDir = Join-Path $dstSrc ".git"
 if (Test-Path $gitDir) { Remove-Item $gitDir -Recurse -Force }
+$nodeModulesDir = Join-Path $dstSrc "node_modules"
+if (Test-Path $nodeModulesDir) {
+    Write-Host "Removing copied source node_modules so the package is rebuilt cleanly..."
+    Remove-Item -Path $nodeModulesDir -Recurse -Force
+}
 
 # [3/6] 复制启动器和共享文件
 Write-Host "`n[3/6] Copying launchers and shared files..."
@@ -167,7 +258,9 @@ if ($Mode -eq "fat") {
     Push-Location $dstSrc
     try {
         & "$nodeTarget\npm.cmd" install -g pnpm --registry=https://registry.npmmirror.com
+        Assert-LastExitCode -Description "pnpm bootstrap"
         & "$nodeTarget\pnpm.cmd" install --registry=https://registry.npmmirror.com --ignore-scripts --store-dir $storeDir
+        Assert-LastExitCode -Description "dependency installation"
     }
     finally {
         Pop-Location
@@ -178,6 +271,7 @@ if ($Mode -eq "fat") {
     $pruneScript = Join-Path $WorkingDir "prune-platform.js"
     $nmPath = Join-Path $dstSrc "node_modules"
     & "$nodeTarget\node.exe" $pruneScript --platform $Platform --arch $Arch --path $nmPath
+    Assert-LastExitCode -Description "platform prune"
 
     if (Test-Path $storeDir) {
         Remove-Item $storeDir -Recurse -Force

@@ -65,3 +65,18 @@ powershell -ExecutionPolicy Bypass -File .\tools\environment-assets\windows\pref
 - `downloads/*`
 - `playwright-browsers/*`
 - `manifest.local.json`
+
+## Latest Usage Notes
+
+- `prefetch-playwright-browsers.ps1` now auto-detects OpenClaw source from either `openclaw/` or `openclaw-portable/openclaw/`.
+- Use the default command below to prefetch the full Playwright browser set:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\environment-assets\windows\prefetch-playwright-browsers.ps1
+```
+
+- Use the command below to point at a specific source checkout and prefetch only Chromium-related assets:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\environment-assets\windows\prefetch-playwright-browsers.ps1 -OpenClawPath .\openclaw-portable\openclaw -BrowserSet chromium
+```

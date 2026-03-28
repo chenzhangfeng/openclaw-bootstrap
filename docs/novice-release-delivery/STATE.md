@@ -1,5 +1,13 @@
 # Novice Release Delivery State
 
+## Latest Update
+
+- 2026-03-28: `build/build-windows.ps1 -Mode fat` succeeded against auto-detected source `openclaw-portable/openclaw`.
+- 2026-03-28: Windows fat output was created at `dist/openclaw-win-x64-fat/` with bundled `node/`, `git/`, `openclaw/`, launcher `.bat` files, shared `data/`, `scripts/`, and cached Playwright browsers.
+- 2026-03-28: Builder source copy now excludes recursive `node_modules/` and `.git/`, which fixes the previous `Copy-Item` path-depth failure on the real OpenClaw tree.
+- 2026-03-28: `TEST-004` should now be treated as passed based on a real build smoke.
+- 2026-03-28: `prefetch-playwright-browsers.ps1` now auto-detects `openclaw-portable/openclaw` and supports `-BrowserSet chromium`, but that narrow-path smoke still timed out locally and remains unverified.
+
 - 当前阶段：`Checkpointed After Stable Commit`
 - 当前任务组：`2. Windows fat 正式包闭环` / `5. 验证与发版门槛`
 - 当前领域：`windows-portable`

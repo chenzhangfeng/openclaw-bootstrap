@@ -1,5 +1,13 @@
 # Novice Release Delivery Test Matrix
 
+## Latest Evidence
+
+- 2026-03-28: `build/build-windows.ps1 -Mode fat` completed successfully using cached `Node.js`, cached `MinGit`, cached Playwright browser assets, and auto-detected source `openclaw-portable/openclaw`.
+- 2026-03-28: Real fat-build output now exists at `dist/openclaw-win-x64-fat/`.
+- 2026-03-28: Dist smoke confirmed presence of `browsers/`, `data/`, `git/`, `node/`, `openclaw/`, `scripts/`, `start.bat`, `update.bat`, and `0.配置AI密钥.bat`.
+- 2026-03-28: Treat `TEST-004` as `done / passed`.
+- 2026-03-28: `TEST-005` remains pending because no clean Windows first-run machine validation has been executed yet.
+
 ## 使用说明
 
 - 一行一个验证单元

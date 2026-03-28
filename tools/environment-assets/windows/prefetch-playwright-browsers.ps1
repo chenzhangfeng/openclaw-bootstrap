@@ -1,5 +1,7 @@
 param(
     [string]$OpenClawPath = "",
+    [ValidateSet("all", "chromium")]
+    [string]$BrowserSet = "all",
     [switch]$ForceInstall
 )
 
@@ -13,17 +15,41 @@ $DownloadsDir = Join-Path $ToolRoot "downloads"
 $BrowsersDir = Join-Path $ToolRoot "playwright-browsers"
 $NodeArchive = Get-ChildItem -Path $DownloadsDir -Filter "node-v*-win-x64.zip" | Sort-Object Name -Descending | Select-Object -First 1
 
-if ([string]::IsNullOrWhiteSpace($OpenClawPath)) {
-    $OpenClawPath = Join-Path $RepoRoot "openclaw"
+function Resolve-OpenClawSourceDir {
+    param(
+        [string]$PreferredPath,
+        [string]$RepoRoot
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($PreferredPath)) {
+        if (-not (Test-Path $PreferredPath)) {
+            throw "[ERROR] OpenClaw source directory not found: $PreferredPath"
+        }
+
+        $resolvedPreferredPath = (Resolve-Path $PreferredPath).Path
+        if (-not (Test-Path (Join-Path $resolvedPreferredPath "package.json"))) {
+            throw "[ERROR] package.json not found under OpenClaw source directory: $resolvedPreferredPath"
+        }
+
+        return $resolvedPreferredPath
+    }
+
+    $candidatePaths = @(
+        (Join-Path $RepoRoot "openclaw"),
+        (Join-Path $RepoRoot "openclaw-portable\openclaw")
+    )
+
+    foreach ($candidatePath in $candidatePaths) {
+        if ((Test-Path $candidatePath) -and (Test-Path (Join-Path $candidatePath "package.json"))) {
+            return (Resolve-Path $candidatePath).Path
+        }
+    }
+
+    $searchedPaths = $candidatePaths -join ", "
+    throw "[ERROR] OpenClaw source directory not found. Checked: $searchedPaths"
 }
 
-if (-not (Test-Path $OpenClawPath)) {
-    throw "[ERROR] OpenClaw source directory not found: $OpenClawPath"
-}
-
-if (-not (Test-Path (Join-Path $OpenClawPath "package.json"))) {
-    throw "[ERROR] package.json not found under OpenClaw source directory: $OpenClawPath"
-}
+$OpenClawPath = Resolve-OpenClawSourceDir -PreferredPath $OpenClawPath -RepoRoot $RepoRoot
 
 if ($null -eq $NodeArchive) {
     throw "[ERROR] No cached Node.js archive found under $DownloadsDir. Run fetch-official-assets.ps1 first."
@@ -50,27 +76,56 @@ $env:PATH = "$PortableNodeDir;" + $env:PATH
 $env:npm_config_prefix = $PortableNodeDir
 $env:PNPM_STORE_DIR = $TempStore
 $env:PLAYWRIGHT_BROWSERS_PATH = $BrowsersDir
+$playwrightCliArgs = @("install")
+$nodeModulesDir = Join-Path $OpenClawPath "node_modules"
+$cleanupInstalledNodeModules = $false
+
+if ($BrowserSet -eq "chromium") {
+    $playwrightCliArgs += "chromium"
+}
 
 Push-Location $OpenClawPath
 try {
+    Write-Host "Using OpenClaw source: $OpenClawPath"
+    Write-Host "Browser set: $BrowserSet"
+
     $pnpmCmd = Join-Path $PortableNodeDir "pnpm.cmd"
+    $playwrightCmd = Join-Path $OpenClawPath "node_modules\.bin\playwright.cmd"
     if (-not (Test-Path $pnpmCmd)) {
         Write-Host "Installing pnpm into temporary portable Node..."
         & (Join-Path $PortableNodeDir "npm.cmd") install -g pnpm --registry=https://registry.npmmirror.com
+        if ($LASTEXITCODE -ne 0) {
+            throw "[ERROR] Failed to install pnpm into the temporary Node runtime."
+        }
     }
 
     if ($ForceInstall -or -not (Test-Path (Join-Path $OpenClawPath "node_modules\.pnpm"))) {
+        $cleanupInstalledNodeModules = -not (Test-Path $nodeModulesDir)
         Write-Host "Installing project dependencies so Playwright version matches the real app..."
         & $pnpmCmd install --registry=https://registry.npmmirror.com --ignore-scripts --store-dir $TempStore
+        if ($LASTEXITCODE -ne 0) {
+            throw "[ERROR] Failed to install OpenClaw dependencies for browser prefetch."
+        }
     } else {
         Write-Host "Reusing existing project dependencies under $OpenClawPath"
     }
 
     Write-Host "Prefetching Playwright browsers into $BrowsersDir ..."
-    & $pnpmCmd exec playwright install
+    if (Test-Path $playwrightCmd) {
+        & $playwrightCmd @playwrightCliArgs
+    } else {
+        & $pnpmCmd exec playwright @playwrightCliArgs
+    }
+    if ($LASTEXITCODE -ne 0) {
+        throw "[ERROR] Failed to prefetch Playwright browsers."
+    }
 }
 finally {
     Pop-Location
+    if ($cleanupInstalledNodeModules -and (Test-Path $nodeModulesDir)) {
+        Write-Host "Removing temporary node_modules created for browser prefetch..."
+        Remove-Item -Path $nodeModulesDir -Recurse -Force
+    }
     if (Test-Path $TempRoot) {
         Remove-Item -Path $TempRoot -Recurse -Force
     }
