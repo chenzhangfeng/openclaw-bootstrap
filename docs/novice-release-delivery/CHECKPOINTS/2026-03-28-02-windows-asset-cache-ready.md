@@ -1,0 +1,73 @@
+# Checkpoint: windows asset cache ready
+
+- 时间：2026-03-28 19:30:25 +08:00
+- 阶段：`Windows Asset Cache Prepared`
+- 当前任务组：`2. Windows fat 正式包闭环` / `5. 验证与发版门槛`
+- 当前领域：`windows-portable`
+- 本次完成切片：
+  - 类型：`slice`
+  - 编号：`SLICE-003`
+- 当前相关文档：
+  - `PLANNING.md`
+  - `OUTLINE.md`
+  - `STATE.md`
+  - `TRACKERS/TEST-MATRIX.md`
+  - `ACCEPTANCE.md`
+- git：
+  - commit：`e88d5a86eddf2dfb3b41d1442c853b9af4ef60ef`
+  - 分支：`main`
+- 关联验证单元：
+  - `TEST-007`
+  - `TEST-008`
+  - `TEST-009`
+- 已完成：
+  - 新建 `tools/environment-assets/windows/` 作为可复用官方环境资产缓存目录
+  - 下载官方 Node.js `node-v22.22.1-win-x64.zip`
+  - 下载官方 MinGit `MinGit-2.53.0.2-64-bit.zip`
+  - 生成本地 `manifest.local.json`
+  - 新增 `fetch-official-assets.ps1` 与 `prefetch-playwright-browsers.ps1`
+  - 让 `build/build-windows.ps1` 优先复用本地 Node / MinGit 缓存
+  - 修正 Windows 启动器，兼容官方 MinGit 的 `cmd\git.exe` 路径结构
+- 修改文件：
+  - `build/build-windows.ps1`
+  - `launchers/windows/start.bat`
+  - `launchers/windows/update.bat`
+  - `openclaw-portable/start.bat`
+  - `openclaw-portable/update.bat`
+  - `tools/environment-assets/windows/*`
+  - `docs/novice-release-delivery/OUTLINE.md`
+  - `docs/novice-release-delivery/STATE.md`
+  - `docs/novice-release-delivery/ACCEPTANCE.md`
+  - `docs/novice-release-delivery/TRACKERS/TEST-MATRIX.md`
+- 已执行验证：
+  - 执行 `powershell -NoProfile -ExecutionPolicy Bypass -File tools\environment-assets\windows\fetch-official-assets.ps1`
+  - PowerShell 解析器检查 `tools/environment-assets\windows\fetch-official-assets.ps1`
+  - PowerShell 解析器检查 `tools\environment-assets\windows\prefetch-playwright-browsers.ps1`
+  - PowerShell 解析器检查 `build\build-windows.ps1`
+  - 手工解压检查 MinGit 压缩包结构，确认存在 `cmd\git.exe`
+  - 人工核对 Windows 启动器 PATH 组装逻辑
+- 验证结论：
+  - `TEST-007`, `TEST-008`, `TEST-009` 已完成并通过
+  - 本地缓存资产已具备复用条件，但真正的小白 fat 包 smoke 仍依赖 OpenClaw 源码和匹配版本的 Playwright 浏览器
+- 当前验证债：
+  - `TEST-004`: `not_run`
+    - 原因：缺少 `openclaw/` 源码与匹配版本的 Playwright 浏览器资产，无法完成真实 fat 构建 smoke
+    - 是否阻塞：`no`
+  - `TEST-005`: `not_run`
+    - 原因：尚未在纯净 Windows 机器执行首启验证
+    - 是否阻塞：`no`
+- 资产摘要：
+  - `node-v22.22.1-win-x64.zip`
+    - SHA256：`877CB93829E14FFFBBC7903E7D8037336C9A79F3EA43C5D0B8C2379B79DA56DE`
+  - `MinGit-2.53.0.2-64-bit.zip`
+    - SHA256：`D4BF83D6A860CCAE9AF44E508E1E00A39F09DB6FA78A9BA5543B94D87CA22A29`
+- 遗留风险：
+  - `playwright-browsers/` 仍为空目录，后续必须按真实 OpenClaw 版本预取
+  - 兼容更新脚本虽然已能匹配 MinGit 目录结构，但正式小白更新策略仍应优先“重新下载新版压缩包”
+- 下一步最小动作：
+  - 在 `openclaw/` 源码回到仓库后，执行 `tools/environment-assets/windows/prefetch-playwright-browsers.ps1` 预取匹配版本的浏览器资产，再回补 `TEST-004` 与 `TEST-005`
+- 下一位 AI 接手提示：
+  - 先读 `STATE.md`
+  - 再读本 checkpoint
+  - 再读 `TRACKERS/TEST-MATRIX.md`
+  - 若 `openclaw/` 已恢复，优先执行 Playwright 预取与 fat 包 smoke
