@@ -1,13 +1,13 @@
 # Novice Release Delivery State
 
-- 当前阶段：`Checkpointed After Slice Implementation`
+- 当前阶段：`Checkpointed After Stable Commit`
 - 当前任务组：`4. macOS 小白分发路径` / `5. 验证与发版门槛`
 - 当前领域：`macos-distribution`
 - 当前执行单元：
   - 类型：`slice`
   - 编号：`SLICE-002`
 - 当前分支：`main`
-- 当前 commit：`8032cea4f20ee01f160f8c63126c0a4d3aa4cba7`
+- 当前 commit：`3bfa9bb7e87213b240f6243f9b4e21c72c33eae2`
 - 当前相关文档：
   - `PLANNING.md`
   - `OUTLINE.md`

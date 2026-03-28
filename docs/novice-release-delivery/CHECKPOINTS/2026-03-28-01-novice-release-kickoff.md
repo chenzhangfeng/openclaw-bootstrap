@@ -1,0 +1,70 @@
+# Checkpoint: novice release kickoff
+
+- 时间：2026-03-28 16:25:16 +08:00
+- 阶段：`Kickoff Complete`
+- 当前任务组：`2. Windows fat 正式包闭环` / `3. Windows 用户入口与兼容兜底` / `4. macOS 小白分发路径`
+- 当前领域：`windows-portable`, `macos-distribution`
+- 本次完成切片：
+  - 类型：`slice`
+  - 编号：`SLICE-001`, `SLICE-002`
+- 当前相关文档：
+  - `PLANNING.md`
+  - `OUTLINE.md`
+  - `STATE.md`
+  - `DOMAINS/macos-distribution.md`
+  - `TRACKERS/TEST-MATRIX.md`
+  - `ACCEPTANCE.md`
+- git：
+  - commit：`3bfa9bb7e87213b240f6243f9b4e21c72c33eae2`
+  - 分支：`main`
+- 关联验证单元：
+  - `TEST-001`
+  - `TEST-002`
+  - `TEST-003`
+  - `TEST-006`
+- 已完成：
+  - 使用 `6a-project-management-v2` 与 `task-driven-dev-v2` 为小白发行任务建立执行文档集
+  - 修复 `build/build-windows.ps1` 的参数块位置问题，并补上关键资产 fail-fast 校验
+  - 让 Windows / Unix 启动入口都对齐到“先启动，后在页面内配置 API”
+  - 将 API 配置脚本与 Git 更新脚本收敛为兼容兜底路径
+  - 定义 macOS 正式包目标形态为 `.app` / `.dmg`，并写出过渡任务
+- 修改文件：
+  - `README.md`
+  - `build/build-windows.ps1`
+  - `launchers/windows/start.bat`
+  - `launchers/windows/update.bat`
+  - `launchers/windows/0.配置AI密钥.bat`
+  - `launchers/unix/start.sh`
+  - `launchers/unix/update.sh`
+  - `launchers/unix/setup-key.sh`
+  - `portable/README.md`
+  - `openclaw-portable/README.md`
+  - `openclaw-portable/start.bat`
+  - `openclaw-portable/update.bat`
+  - `openclaw-portable/0.点我填入大模型API密钥.bat`
+  - `docs/novice-release-delivery/*`
+- 已执行验证：
+  - PowerShell 解析器检查 `build/build-windows.ps1`
+  - Git Bash 语法检查 `launchers/unix/start.sh`
+  - Git Bash 语法检查 `launchers/unix/setup-key.sh`
+  - Git Bash 语法检查 `launchers/unix/update.sh`
+  - 人工核对 `README.md`、Windows / Unix 启动器与兼容脚本文案
+- 验证结论：
+  - `TEST-001`, `TEST-002`, `TEST-003`, `TEST-006` 已完成静态验证并通过
+  - `TEST-004`, `TEST-005` 仍待真实资产与纯净机器环境回补
+- 当前验证债：
+  - `TEST-004`: `not_run`
+    - 原因：缺少 `portable/browsers` 预置浏览器资产，无法完成真正的小白 fat 包 smoke
+    - 是否阻塞：`no`
+  - `TEST-005`: `not_run`
+    - 原因：尚未在纯净 Windows 机器执行首启验证
+    - 是否阻塞：`no`
+- 遗留风险：
+  - “页面内配置 API” 的最终体验仍依赖 OpenClaw 本体
+  - 当前仓库仍未具备真正的 macOS app-first 打包层
+- 下一步最小动作：
+  - 在具备 `portable/browsers` 资产和 Windows 验证环境后，回补 `TEST-004` 与 `TEST-005`，优先执行一次真实 `fat` 构建 smoke
+- 下一位 AI 接手提示：
+  - 先读 `STATE.md`
+  - 再读本 checkpoint
+  - 再读 `TRACKERS/TEST-MATRIX.md` 与 `DOMAINS/macos-distribution.md`
