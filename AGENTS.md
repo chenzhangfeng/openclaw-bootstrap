@@ -34,3 +34,5 @@
 - 仓库级别的私有技能存放在 `.agent/skills/<skill-name>/SKILL.md` 目录下。
 - 当用户点名某个仓库私有技能，或者当前任务明确匹配时，请读取该本地 `SKILL.md` 并遵循它，即使该技能未出现在当前会话的 `可用技能 (Available skills)` 列表中。
 - 对于特定于仓库的工作流，在声明已使用仓库私有版本后，优先选用私有技能而非同名的系统级技能。
+- 当同一家族 skill 同时存在旧版与 `-v2` 版本时，默认优先选择 `-v2`；只有在用户明确点名旧版、旧目录文档明确要求旧版，或 `STATE.md` 已写明当前仍由旧版主导时，才继续使用旧版。
+- 若旧版 skill 仅为兼容保留，不得因为名称更短或更模糊就默认回退到旧版；在接手说明、checkpoint 与 `STATE.md` 中，优先写全量 skill 名称，例如 `6a-project-management-v2`、`backend-mvp-architect-v2`、`task-driven-dev-v2`，而不是省略版本号。
