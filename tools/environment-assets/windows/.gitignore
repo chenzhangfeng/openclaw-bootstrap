@@ -1,0 +1,5 @@
+downloads/*
+!downloads/.gitkeep
+playwright-browsers/*
+!playwright-browsers/.gitkeep
+manifest.local.json

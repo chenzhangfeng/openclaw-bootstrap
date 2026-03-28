@@ -15,6 +15,15 @@
 - [x] 2.2 收敛正式包资产约束与构建输出提示
   - 验证引用：`TEST-003`, `TEST-004`
   - 验证动作：人工核对构建日志文案；待真实 fat 构建 smoke 回补 -> 依赖 2.1
+- [x] 2.3 建立可复用的官方环境资产缓存目录
+  - 验证引用：`TEST-007`
+  - 验证动作：人工核对 `tools/environment-assets/windows/` 目录、拉取脚本、README 与本地下载结果 -> 依赖 2.2
+- [x] 2.4 让 Windows 构建脚本复用缓存的 MinGit 运行时
+  - 验证引用：`TEST-008`
+  - 验证动作：人工核对 `build/build-windows.ps1` 已优先解压环境缓存中的 `MinGit-*-64-bit.zip` -> 依赖 2.3
+- [x] 2.5 修正 Windows 启动器对 MinGit 路径的兼容性
+  - 验证引用：`TEST-009`
+  - 验证动作：人工核对 `start.bat` / `update.bat` 已把 `git\\cmd` 与 `git\\bin` 同时加入 `PATH` -> 依赖 2.4
 
 ## 3. Windows 用户入口与兼容兜底
 - [x] 3.1 把用户主入口改为“先启动，后在页面里配置 API”

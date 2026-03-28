@@ -18,10 +18,11 @@ set "BASE_DIR=%~dp0"
 set "BASE_DIR=%BASE_DIR:~0,-1%"
 
 set "NODE_DIR=%BASE_DIR%\node"
-set "GIT_DIR=%BASE_DIR%\git\bin"
+set "GIT_CMD_DIR=%BASE_DIR%\git\cmd"
+set "GIT_BIN_DIR=%BASE_DIR%\git\bin"
 
 :: 设置局部 PATH，优先使用便携包内的 Git 和 Node
-set "PATH=%NODE_DIR%;%GIT_DIR%;%PATH%"
+set "PATH=%NODE_DIR%;%GIT_CMD_DIR%;%GIT_BIN_DIR%;%PATH%"
 :: 劫持 npm / pnpm 全局安装和缓存路径到便携包内部
 set "npm_config_prefix=%NODE_DIR%"
 set "PNPM_HOME=%BASE_DIR%\pnpm-global"

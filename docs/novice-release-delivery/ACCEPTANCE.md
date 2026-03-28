@@ -29,6 +29,19 @@
   - Unix 侧入口文案已与“先启动，后页面内配置”的产品契约对齐
   - macOS 小白正式包目标形态与迁移任务已固化到领域文档
 
+- 日期：2026-03-28
+- 切片编号：`SLICE-003`
+- 已执行验证：
+  - 执行 `tools/environment-assets/windows/fetch-official-assets.ps1`
+  - 人工核对 `tools/environment-assets/windows/README.md`
+  - PowerShell 解析器检查 `tools/environment-assets/windows/*.ps1` 与 `build/build-windows.ps1`
+  - 手工解压检查官方 MinGit 压缩包目录结构
+  - 人工核对 `launchers/windows/start.bat`、`launchers/windows/update.bat`
+- 结果结论：
+  - 已建立可复用的 Windows 官方环境资产缓存目录，并下载 Node.js 与 MinGit
+  - `build/build-windows.ps1` 已优先复用本地 Node / MinGit 缓存
+  - 已确认官方 MinGit 以 `cmd\git.exe` 为主，Windows 启动器已兼容 `git\cmd`
+
 ## 部分完成 / 跳过说明
 
 - 原因：

@@ -42,16 +42,56 @@ function Test-DirectoryHasContent {
     return $null -ne (Get-ChildItem -Path $Path -Force | Select-Object -First 1)
 }
 
+function Expand-ArchiveToTargetRoot {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ArchivePath,
+        [Parameter(Mandatory = $true)]
+        [string]$TargetRoot
+    )
+
+    $tempExtractDir = Join-Path ([System.IO.Path]::GetDirectoryName($TargetRoot)) ([System.IO.Path]::GetFileName($TargetRoot) + "-extract")
+    if (Test-Path $tempExtractDir) {
+        Remove-Item -Path $tempExtractDir -Recurse -Force
+    }
+    New-Item -ItemType Directory -Path $tempExtractDir | Out-Null
+
+    Expand-Archive -Path $ArchivePath -DestinationPath $tempExtractDir -Force
+    $children = Get-ChildItem -Path $tempExtractDir -Force
+
+    if (Test-Path $TargetRoot) {
+        Remove-Item -Path $TargetRoot -Recurse -Force
+    }
+
+    if (($children.Count -eq 1) -and $children[0].PSIsContainer) {
+        Move-Item -Path $children[0].FullName -Destination $TargetRoot
+    } else {
+        New-Item -ItemType Directory -Path $TargetRoot | Out-Null
+        Get-ChildItem -Path $tempExtractDir -Force | Move-Item -Destination $TargetRoot
+    }
+
+    if (Test-Path $tempExtractDir) {
+        Remove-Item -Path $tempExtractDir -Recurse -Force
+    }
+}
+
 $DistName = "openclaw-win-$Arch-$Mode"
 $DistDir = Join-Path $RepoRoot "dist\$DistName"
 $nodeTarget = Join-Path $DistDir "node"
 $srcDir = Join-Path $RepoRoot "openclaw"
 $launchersDir = Join-Path $RepoRoot "launchers\windows"
 $portableDir = Join-Path $RepoRoot "portable"
+$environmentAssetRoot = Join-Path $RepoRoot "tools\environment-assets\windows"
+$environmentDownloadsDir = Join-Path $environmentAssetRoot "downloads"
+$environmentBrowsersDir = Join-Path $environmentAssetRoot "playwright-browsers"
 $portableScriptsDir = Join-Path $portableDir "scripts"
 $portableDataDir = Join-Path $portableDir "data"
 $portableBrowsersDir = Join-Path $portableDir "browsers"
 $portableReadme = Join-Path $portableDir "README.md"
+$buildCacheDir = Join-Path $RepoRoot "build\cache"
+$environmentNodeArchive = Join-Path $environmentDownloadsDir "$NodeZipName.zip"
+$buildCacheNodeArchive = Join-Path $buildCacheDir "$NodeZipName.zip"
+$minGitArchive = Get-ChildItem -Path $environmentDownloadsDir -Filter "MinGit-*-64-bit.zip" -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch "busybox" } | Sort-Object Name -Descending | Select-Object -First 1
 
 Write-Host "=========================================="
 Write-Host "  OpenClaw Portable Builder - Windows $Mode"
@@ -69,13 +109,15 @@ New-Item -ItemType Directory -Path $DistDir | Out-Null
 
 # [1/6] 下载 Node.js
 Write-Host "`n[1/6] Node.js v$NodeVersion ($Arch)..."
-if (-Not (Test-Path "$RepoRoot\build\cache\$NodeZipName.zip")) {
-    New-Item -ItemType Directory -Force -Path "$RepoRoot\build\cache" | Out-Null
+if (Test-Path $environmentNodeArchive) {
+    Write-Host "Using reusable environment asset cache: $environmentNodeArchive"
+} elseif (-Not (Test-Path $buildCacheNodeArchive)) {
+    New-Item -ItemType Directory -Force -Path $buildCacheDir | Out-Null
     Write-Host "Downloading..."
-    Invoke-WebRequest -Uri $NodeUrl -OutFile "$RepoRoot\build\cache\$NodeZipName.zip"
+    Invoke-WebRequest -Uri $NodeUrl -OutFile $buildCacheNodeArchive
 }
 Write-Host "Extracting..."
-Expand-Archive -Path "$RepoRoot\build\cache\$NodeZipName.zip" -DestinationPath $DistDir -Force
+Expand-Archive -Path $(if (Test-Path $environmentNodeArchive) { $environmentNodeArchive } else { $buildCacheNodeArchive }) -DestinationPath $DistDir -Force
 Rename-Item -Path (Join-Path $DistDir $NodeZipName) -NewName "node"
 
 # [2/6] 复制源码
@@ -93,9 +135,19 @@ Copy-Item -Path $portableDataDir -Destination (Join-Path $DistDir "data") -Recur
 if (Test-Path $portableReadme) {
     Copy-Item $portableReadme -Destination $DistDir
 }
-if (Test-Path $portableBrowsersDir) {
+if (Test-DirectoryHasContent -Path $portableBrowsersDir) {
     Write-Host "Copying prebuilt Playwright browsers..."
     Copy-Item -Path $portableBrowsersDir -Destination (Join-Path $DistDir "browsers") -Recurse -Force
+} elseif (Test-DirectoryHasContent -Path $environmentBrowsersDir) {
+    Write-Host "Copying reusable environment Playwright browsers..."
+    Copy-Item -Path $environmentBrowsersDir -Destination (Join-Path $DistDir "browsers") -Recurse -Force
+}
+if ($null -ne $minGitArchive) {
+    $gitTarget = Join-Path $DistDir "git"
+    Write-Host "Extracting reusable MinGit runtime..."
+    Expand-ArchiveToTargetRoot -ArchivePath $minGitArchive.FullName -TargetRoot $gitTarget
+} else {
+    Write-Warning "No reusable MinGit archive found under $environmentDownloadsDir. Compatibility update script will not have an embedded Git runtime."
 }
 
 # 创建目录结构

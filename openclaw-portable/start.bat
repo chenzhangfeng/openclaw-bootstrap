@@ -57,7 +57,8 @@ for /f "delims=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789:\-
 
 :: 设定便携版 Node.js 路径
 set "NODE_DIR=%BASE_DIR%\node"
-set "GIT_DIR=%BASE_DIR%\git\bin"
+set "GIT_CMD_DIR=%BASE_DIR%\git\cmd"
+set "GIT_BIN_DIR=%BASE_DIR%\git\bin"
 
 IF NOT EXIST "%NODE_DIR%\node.exe" (
     echo [错误] 找不到便携版 Node.js 环境！
@@ -68,7 +69,7 @@ IF NOT EXIST "%NODE_DIR%\node.exe" (
 )
 
 :: 将便携版工具强制放置于 PATH 最优先位置
-set "PATH=%NODE_DIR%;%GIT_DIR%;%PATH%"
+set "PATH=%NODE_DIR%;%GIT_CMD_DIR%;%GIT_BIN_DIR%;%PATH%"
 
 :: 劫持 npm 全局安装路径到便携包内部，绝不污染宿主系统
 set "npm_config_prefix=%NODE_DIR%"
