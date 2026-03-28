@@ -1,4 +1,11 @@
+param(
+    [ValidateSet("fat", "slim")]
+    [string]$Mode = "fat"
+)
+
 $ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
+
 $WorkingDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = Split-Path -Parent $WorkingDir
 
@@ -9,18 +16,52 @@ $Arch = "x64"
 $NodeZipName = "node-v$NodeVersion-win-x64"
 $NodeUrl = "https://nodejs.org/dist/v$NodeVersion/$NodeZipName.zip"
 
-# ===== 构建模式选择 =====
-param(
-    [ValidateSet("fat", "slim")]
-    [string]$Mode = "fat"
-)
+function Require-Path {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$Description
+    )
+
+    if (-not (Test-Path $Path)) {
+        throw "[ERROR] Missing $Description at: $Path"
+    }
+}
+
+function Test-DirectoryHasContent {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path $Path)) {
+        return $false
+    }
+
+    return $null -ne (Get-ChildItem -Path $Path -Force | Select-Object -First 1)
+}
 
 $DistName = "openclaw-win-$Arch-$Mode"
 $DistDir = Join-Path $RepoRoot "dist\$DistName"
+$nodeTarget = Join-Path $DistDir "node"
+$srcDir = Join-Path $RepoRoot "openclaw"
+$launchersDir = Join-Path $RepoRoot "launchers\windows"
+$portableDir = Join-Path $RepoRoot "portable"
+$portableScriptsDir = Join-Path $portableDir "scripts"
+$portableDataDir = Join-Path $portableDir "data"
+$portableBrowsersDir = Join-Path $portableDir "browsers"
+$portableReadme = Join-Path $portableDir "README.md"
 
 Write-Host "=========================================="
 Write-Host "  OpenClaw Portable Builder - Windows $Mode"
 Write-Host "=========================================="
+
+Require-Path -Path $srcDir -Description "OpenClaw source directory"
+Require-Path -Path (Join-Path $srcDir "package.json") -Description "OpenClaw package.json"
+Require-Path -Path $launchersDir -Description "Windows launcher directory"
+Require-Path -Path $portableScriptsDir -Description "portable scripts directory"
+Require-Path -Path $portableDataDir -Description "portable data directory"
 
 # 清理旧产物
 if (Test-Path $DistDir) { Remove-Item $DistDir -Recurse -Force }
@@ -28,7 +69,6 @@ New-Item -ItemType Directory -Path $DistDir | Out-Null
 
 # [1/6] 下载 Node.js
 Write-Host "`n[1/6] Node.js v$NodeVersion ($Arch)..."
-$nodeTarget = Join-Path $DistDir "node"
 if (-Not (Test-Path "$RepoRoot\build\cache\$NodeZipName.zip")) {
     New-Item -ItemType Directory -Force -Path "$RepoRoot\build\cache" | Out-Null
     Write-Host "Downloading..."
@@ -40,30 +80,22 @@ Rename-Item -Path (Join-Path $DistDir $NodeZipName) -NewName "node"
 
 # [2/6] 复制源码
 Write-Host "`n[2/6] Copying OpenClaw source..."
-$srcDir = Join-Path $RepoRoot "openclaw"
 $dstSrc = Join-Path $DistDir "openclaw"
-if (Test-Path $srcDir) {
-    Copy-Item -Path $srcDir -Destination $dstSrc -Recurse -Force
-    # 删除 git 历史
-    $gitDir = Join-Path $dstSrc ".git"
-    if (Test-Path $gitDir) { Remove-Item $gitDir -Recurse -Force }
-} else {
-    Write-Host "[WARN] openclaw/ source not found at repo root!"
-}
+Copy-Item -Path $srcDir -Destination $dstSrc -Recurse -Force
+$gitDir = Join-Path $dstSrc ".git"
+if (Test-Path $gitDir) { Remove-Item $gitDir -Recurse -Force }
 
 # [3/6] 复制启动器和共享文件
 Write-Host "`n[3/6] Copying launchers and shared files..."
-$launchersDir = Join-Path $RepoRoot "launchers\windows"
-if (Test-Path $launchersDir) {
-    Get-ChildItem $launchersDir -File | Copy-Item -Destination $DistDir
+Get-ChildItem $launchersDir -File | Copy-Item -Destination $DistDir
+Copy-Item -Path $portableScriptsDir -Destination (Join-Path $DistDir "scripts") -Recurse -Force
+Copy-Item -Path $portableDataDir -Destination (Join-Path $DistDir "data") -Recurse -Force
+if (Test-Path $portableReadme) {
+    Copy-Item $portableReadme -Destination $DistDir
 }
-# 共享脚本和配置
-$portableDir = Join-Path $RepoRoot "portable"
-if (Test-Path $portableDir) {
-    Copy-Item -Path (Join-Path $portableDir "scripts") -Destination (Join-Path $DistDir "scripts") -Recurse -Force
-    Copy-Item -Path (Join-Path $portableDir "data") -Destination (Join-Path $DistDir "data") -Recurse -Force
-    $readmeSrc = Join-Path $portableDir "README.md"
-    if (Test-Path $readmeSrc) { Copy-Item $readmeSrc -Destination $DistDir }
+if (Test-Path $portableBrowsersDir) {
+    Write-Host "Copying prebuilt Playwright browsers..."
+    Copy-Item -Path $portableBrowsersDir -Destination (Join-Path $DistDir "browsers") -Recurse -Force
 }
 
 # 创建目录结构
@@ -80,10 +112,14 @@ if ($Mode -eq "fat") {
     $storeDir = Join-Path $DistDir "temp-pnpm-store"
     $env:PNPM_STORE_DIR = $storeDir
 
-    Set-Location $dstSrc
-    & "$nodeTarget\npm.cmd" install -g pnpm --registry=https://registry.npmmirror.com
-    & "$nodeTarget\pnpm.cmd" install --registry=https://registry.npmmirror.com --ignore-scripts --store-dir $storeDir
-    Set-Location $WorkingDir
+    Push-Location $dstSrc
+    try {
+        & "$nodeTarget\npm.cmd" install -g pnpm --registry=https://registry.npmmirror.com
+        & "$nodeTarget\pnpm.cmd" install --registry=https://registry.npmmirror.com --ignore-scripts --store-dir $storeDir
+    }
+    finally {
+        Pop-Location
+    }
 
     # [5/6] 平台瘦身
     Write-Host "`n[5/6] Pruning non-$Platform packages..."
@@ -91,8 +127,10 @@ if ($Mode -eq "fat") {
     $nmPath = Join-Path $dstSrc "node_modules"
     & "$nodeTarget\node.exe" $pruneScript --platform $Platform --arch $Arch --path $nmPath
 
-    # 清理临时 store
-    if (Test-Path $storeDir) { Remove-Item $storeDir -Recurse -Force; Write-Host "Removed temp pnpm store" }
+    if (Test-Path $storeDir) {
+        Remove-Item $storeDir -Recurse -Force
+        Write-Host "Removed temp pnpm store"
+    }
 } else {
     Write-Host "`n[4/6] Skipping dependency install (slim mode)"
     Write-Host "[5/6] Skipping platform prune (slim mode)"
@@ -106,6 +144,12 @@ Get-ChildItem -Path $DistDir -Filter "*.bat" | ForEach-Object {
     $content = $content -replace "`r`n", "`n" -replace "`n", "`r`n"
     [System.IO.File]::WriteAllText($_.FullName, $content, $utf8Bom)
     Write-Host "Fixed: $($_.Name)"
+}
+
+if (Test-DirectoryHasContent -Path (Join-Path $DistDir "browsers")) {
+    Write-Host "Bundled prebuilt Playwright browsers."
+} else {
+    Write-Warning "No prebuilt Playwright browsers were bundled. This package can still be built, but it is not yet a true novice-friendly offline release."
 }
 
 Write-Host "`n=========================================="

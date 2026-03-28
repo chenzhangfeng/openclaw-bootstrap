@@ -9,6 +9,9 @@ echo "  - Connecting to server for latest updates..."
 echo "  - Do not close this window during update"
 echo ""
 echo "==================================================="
+echo ""
+echo "  For novice-friendly release packages, re-downloading the latest archive is preferred."
+echo "  This script is mainly a compatibility path for Git-based distributions."
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 NODE_DIR="$BASE_DIR/node"
@@ -27,7 +30,8 @@ fi
 
 # 检查 Git 仓库
 if [ ! -d "$BASE_DIR/.git" ]; then
-    echo "[ERROR] Not a git repository, cannot auto-update."
+    echo "[Info] This directory is not a Git repository, so the compatibility updater cannot run."
+    echo "[Suggestion] Please download the latest release archive and replace the old folder."
     exit 1
 fi
 
@@ -64,5 +68,6 @@ fi
 echo ""
 echo "==================================================="
 echo "[Done] OpenClaw has been updated to the latest version!"
+echo "For novice release packages, future updates should still prefer re-downloading the latest archive."
 echo "You can now run ./start.sh to launch the system."
 echo "==================================================="

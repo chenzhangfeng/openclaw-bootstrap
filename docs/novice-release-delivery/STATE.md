@@ -1,0 +1,32 @@
+# Novice Release Delivery State
+
+- 当前阶段：`Checkpointed After Slice Implementation`
+- 当前任务组：`4. macOS 小白分发路径` / `5. 验证与发版门槛`
+- 当前领域：`macos-distribution`
+- 当前执行单元：
+  - 类型：`slice`
+  - 编号：`SLICE-002`
+- 当前分支：`main`
+- 当前 commit：`8032cea4f20ee01f160f8c63126c0a4d3aa4cba7`
+- 当前相关文档：
+  - `PLANNING.md`
+  - `OUTLINE.md`
+  - `DOMAINS/macos-distribution.md`
+  - `TRACKERS/TEST-MATRIX.md`
+  - `ACCEPTANCE.md`
+- 最近已验证事项：
+  - 人工核对 `docs/novice-release-checklist.md`，确认执行主线为“先 Windows fat，后 macOS”
+  - PowerShell 解析器确认 `build/build-windows.ps1` 存在可识别的参数块，且无解析错误
+  - 人工核对 `README.md`、`launchers/windows/*`、`launchers/unix/*` 的用户入口文案已切换到“先启动，后在页面内配置”
+  - Git Bash 语法检查通过：`launchers/unix/start.sh`、`launchers/unix/setup-key.sh`、`launchers/unix/update.sh`
+- 当前验证债：
+  - `TEST-004`: `not_run`
+    - 原因：当前仓库缺少 `portable/browsers` 预置浏览器资产，无法完成真正的小白 fat 包 smoke。
+    - 是否阻塞：`no`
+  - `TEST-005`: `not_run`
+    - 原因：尚未在纯净 Windows 机器上执行首启验证。
+    - 是否阻塞：`no`
+- 当前阻塞项：
+  - 缺少真实 fat 包构建所需的预置浏览器资产与纯净机器验证环境。
+- 下一步最小动作：
+  - 在具备 `portable/browsers` 资产和 Windows 验证环境后，回补 `TEST-004` 与 `TEST-005`，优先执行一次真实 `fat` 构建 smoke。

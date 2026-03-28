@@ -3,9 +3,12 @@ set -euo pipefail
 
 echo "==================================================="
 echo ""
-echo "  OpenClaw - Quick Setup Wizard"
+echo "  OpenClaw - Compatibility Setup Wizard"
 echo ""
-echo "  Configure your AI model API key to unlock all features!"
+echo "  If the product page already provides model/API settings,"
+echo "  please configure it there first."
+echo ""
+echo "  This script is only a compatibility fallback."
 echo ""
 echo "==================================================="
 
@@ -17,6 +20,9 @@ if [ ! -f "$NODE_DIR/bin/node" ]; then
     exit 1
 fi
 
+echo ""
+echo "Recommended path: run ./start.sh first, then configure model/API in the web UI."
+echo "Only continue with this script if the current page has no config entry yet."
 echo ""
 echo "Select your AI provider:"
 echo ""
@@ -44,7 +50,7 @@ case "$VENDOR_CHOICE" in
     echo "placeholder" | "$NODE_DIR/bin/node" "$BASE_DIR/scripts/set-key.js" "$PROVIDER_NAME" "$BASE_URL"
     echo ""
     echo "==================================================="
-    echo "  Done! Run ./start.sh to launch your AI Agent."
+    echo "  Compatibility config saved. Prefer the product page settings when available."
     echo "==================================================="
     exit 0
     ;;
@@ -72,5 +78,5 @@ echo "$API_KEY" | "$NODE_DIR/bin/node" "$BASE_DIR/scripts/set-key.js" "$PROVIDER
 
 echo ""
 echo "==================================================="
-echo "  Done! Run ./start.sh to launch your AI Agent."
+echo "  Compatibility config saved. Prefer the product page settings when available."
 echo "==================================================="

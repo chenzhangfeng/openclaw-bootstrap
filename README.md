@@ -18,11 +18,11 @@ openclaw-bootstrap/
 │   ├── windows/                     #   Windows 启动器（.bat 批处理）
 │   │   ├── start.bat                #     一键启动
 │   │   ├── update.bat               #     一键更新
-│   │   └── 0.配置AI密钥.bat          #     API 密钥配置向导
+│   │   └── 0.配置AI密钥.bat          #     可选：兼容模式 API 配置工具
 │   └── unix/                        #   macOS / Linux 启动器（.sh 脚本）
 │       ├── start.sh                 #     一键启动
 │       ├── update.sh                #     一键更新
-│       └── setup-key.sh             #     API 密钥配置向导
+│       └── setup-key.sh             #     可选：兼容模式 API 配置工具
 │
 ├── portable/                        # 跨平台共享文件
 │   ├── scripts/set-key.js           #   API 密钥注入脚本
@@ -50,6 +50,8 @@ openclaw-bootstrap/
 | **slim** | 联网版 | ❌ 否 | ✅ 需要 | ~30-50MB | 技术用户、网速好的场景 |
 
 **fat 模式**会在构建时自动运行 `prune-platform.js`，删除所有非目标平台的原生二进制包（如 Windows 构建会删除全部 `linux-*`、`darwin-*` 的包），大幅压缩体积。
+
+面向小白用户的正式发行，默认应优先选择 `fat` 包；`slim` 更适合技术用户或开发调试。
 
 ---
 
@@ -107,8 +109,11 @@ dist/
 ### Windows 用户
 
 1. 解压收到的压缩包到**纯英文路径**（如 `D:\openclaw-portable`）
-2. 双击 `0.配置AI密钥.bat`，按菜单选择厂商并粘贴密钥
-3. 双击 `start.bat`，等待浏览器自动打开
+2. 双击 `start.bat`，等待浏览器自动打开
+3. 首次进入后，优先在 OpenClaw 页面内完成模型 / API 配置，并查看购买入口与说明
+4. 仅当当前页面暂未提供配置入口时，再使用 `0.配置AI密钥.bat` 作为兼容兜底工具
+
+> 更新建议：面向小白的正式发行包，优先通过重新下载新版压缩包来更新；`update.bat` 更适合仍保留 Git 仓库结构的兼容场景。
 
 ### macOS / Linux 用户
 
@@ -116,12 +121,14 @@ dist/
 # 赋予执行权限
 chmod +x *.sh
 
-# 配置 API 密钥
-./setup-key.sh
-
 # 启动
 ./start.sh
+
+# 若当前页面暂未提供模型/API配置入口，再使用兼容脚本
+./setup-key.sh
 ```
+
+> 当前仓库中的 macOS / Linux 启动链路仍偏技术向，尚未达到与 Windows 小白正式包等价的双击体验。
 
 ---
 

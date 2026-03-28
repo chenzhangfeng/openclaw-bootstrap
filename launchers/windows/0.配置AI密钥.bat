@@ -1,12 +1,15 @@
 ﻿@echo off
 chcp 65001 >nul
-title OpenClaw API 密钥初始化工具
+title OpenClaw API 兼容配置工具
 
 echo ===================================================
 echo.
-echo      OpenClaw 引流版 - 极速配置向导
+echo      OpenClaw 引流版 - 兼容配置向导
 echo.
-echo   只需填写一次大模型 API 密钥，即可永久解锁所有功能！
+echo   如果页面里已经提供模型 / API 配置入口，
+echo   请优先在页面里完成设置。
+echo.
+echo   本工具只用于兼容旧流程或兜底写入本地配置。
 echo.
 echo ===================================================
 
@@ -20,6 +23,9 @@ IF NOT EXIST "%NODE_DIR%\node.exe" (
     exit /b 1
 )
 
+echo.
+echo [说明] 推荐首选：先双击 start.bat 启动，再到页面里配置模型。
+echo [说明] 只有页面里暂未提供配置入口时，再继续使用本工具。
 echo.
 echo 请选择您使用的大模型厂商:
 echo.
@@ -87,7 +93,7 @@ if %ERRORLEVEL% neq 0 (
 :done
 echo.
 echo ===================================================
-echo   配置已全部完成！现在您随时可以双击【start.bat】
-echo   开启属于您的私人 AI Agent 之旅！
+echo   兼容配置已写入完成！现在您可以双击【start.bat】
+echo   并优先以页面内的配置入口和说明为准。
 echo ===================================================
 pause

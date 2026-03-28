@@ -9,6 +9,9 @@ echo "  - Checking local environment..."
 echo "  - If blocked by security software, please allow"
 echo ""
 echo "==================================================="
+echo ""
+echo "  First launch: start OpenClaw first, then configure model/API in the web UI."
+echo "  Only use the compatibility setup script if the current page has no config entry yet."
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 NODE_DIR="$BASE_DIR/node"
@@ -62,6 +65,7 @@ echo "[2/2] Starting OpenClaw engine..."
 echo "---------------------------------------------------"
 echo "First run may take a few minutes to initialize."
 echo "A browser window will open automatically when ready."
+echo "If no model is configured yet, please finish it in the product page first."
 echo "---------------------------------------------------"
 
 if [ -f "$BASE_DIR/openclaw/package.json" ]; then
