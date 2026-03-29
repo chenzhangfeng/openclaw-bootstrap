@@ -1,6 +1,13 @@
 # OpenClaw 部署工具箱
 
-本仓库为 OpenClaw AI 智能体系统提供 **跨平台一键部署** 解决方案，覆盖 Windows / macOS / Linux 三大平台，支持 **预装版（fat）** 和 **联网版（slim）** 两种分发模式。
+## 当前状态
+
+- Windows `fat` 构建链路已通过实际 smoke，当前可产出 `dist/openclaw-win-x64-fat/`
+- 这意味着 Windows 方向已经基本具备“小白包先跑起来”所需的本地运行资产
+- 但 `TEST-005` 尚未完成：还没有在纯净 Windows 机器上做最终首启验证，因此暂不建议对外宣称“完全开箱即用已验收”
+- macOS / Linux 当前仍偏技术向，不属于已完成的小白正式发行包
+
+本仓库用于打包和分发 OpenClaw 的跨平台部署工具。当前优先推进 **Windows 小白包**，macOS / Linux 仍以技术向启动链路为主；同时支持 **预装版（fat）** 和 **联网版（slim）** 两种分发模式。
 
 ---
 
@@ -44,14 +51,15 @@ openclaw-bootstrap/
 
 ## 两种分发模式
 
-| 模式 | 含义 | 包含 node_modules | 首次启动需联网 | 压缩后体积 | 适用场景 |
+| 模式 | 含义 | 包含 node_modules | 首次启动需联网 | 当前参考体积 | 适用场景 |
 |:----:|------|:--:|:--:|-----------|---------|
-| **fat** | 预装版 | ✅ 是（已平台瘦身） | ❌ 不需要 | ~150-200MB | 小白用户、离线环境 |
-| **slim** | 联网版 | ❌ 否 | ✅ 需要 | ~30-50MB | 技术用户、网速好的场景 |
+| **fat** | 预装版 | ✅ 是（已平台瘦身） | ❌ 不需要 | Windows x64 当前构建约 `3.32GB`（未压缩，含 Playwright 浏览器） | 小白用户、离线环境 |
+| **slim** | 联网版 | ❌ 否 | ✅ 需要 | 几十 MB 级 | 技术用户、网速好的场景 |
 
 **fat 模式**会在构建时自动运行 `prune-platform.js`，删除所有非目标平台的原生二进制包（如 Windows 构建会删除全部 `linux-*`、`darwin-*` 的包），大幅压缩体积。
 
 面向小白用户的正式发行，默认应优先选择 `fat` 包；`slim` 更适合技术用户或开发调试。
+当前 `fat` 包已经能真实构建通过，但包体仍然偏大，后续还需要继续评估“全量浏览器”与“Chromium-only”之间的取舍。
 
 ---
 
@@ -66,6 +74,8 @@ powershell -ExecutionPolicy Bypass -File .\build\build-windows.ps1 -Mode fat
 # 联网版（包体小，首次启动需联网安装依赖）
 powershell -ExecutionPolicy Bypass -File .\build\build-windows.ps1 -Mode slim
 ```
+
+> 当前 Windows 构建脚本会自动识别 `openclaw/` 或 `openclaw-portable/openclaw/` 作为源码目录；若已预取 `tools/environment-assets/windows/playwright-browsers/`，`fat` 包会直接复用本地浏览器缓存。
 
 ### macOS 版
 
@@ -100,7 +110,7 @@ dist/
 └── ...
 ```
 
-将对应目录压缩为 `.zip`（Windows）或 `.tar.gz`（macOS/Linux）即可分发。
+将对应目录压缩为 `.zip`（Windows）或 `.tar.gz`（macOS/Linux）即可分发。当前已经过实际构建验证的是 `openclaw-win-x64-fat/`。
 
 ---
 
@@ -114,6 +124,8 @@ dist/
 4. 仅当当前页面暂未提供配置入口时，再使用 `0.配置AI密钥.bat` 作为兼容兜底工具
 
 > 更新建议：面向小白的正式发行包，优先通过重新下载新版压缩包来更新；`update.bat` 更适合仍保留 Git 仓库结构的兼容场景。
+>
+> 当前状态：Windows `fat` 包已实测构建通过，但尚未完成纯净 Windows 真机首启验证；对外发版前，建议至少补一次“无开发环境 / 普通用户权限 / 新机器”的 smoke。
 
 ### macOS / Linux 用户
 
@@ -165,7 +177,7 @@ chmod +x *.sh
 > **杀毒软件误报**：由于脚本调用了便携版 Node.js 并自动运行 npm 安装，极易被安全软件拦截。请在使用前暂时关闭杀毒软件或将整个目录加入白名单。
 
 > [!WARNING]
-> **路径限制（Windows）**：安装路径中不能包含中文、空格或特殊字符。推荐解压到 `D:\openclaw-portable` 这类纯英文根目录。
+> **路径限制（Windows）**：当前 `start.bat` 仍会拦截中文、空格或特殊字符路径。推荐解压到 `D:\openclaw-portable` 这类纯英文根目录；如果后续修掉这条限制，再同步修改本说明。
 
 > [!TIP]
 > **VC++ 运行库**：部分 Windows 电脑可能缺少 C++ 运行库导致闪退，请安装微软常用运行库合集后重试。
