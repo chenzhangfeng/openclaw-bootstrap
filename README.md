@@ -3,8 +3,8 @@
 ## 当前状态
 
 - Windows `fat` 构建链路已通过实际 smoke，当前可产出 `dist/openclaw-win-x64-fat/`
-- 这意味着 Windows 方向已经基本具备“小白包先跑起来”所需的本地运行资产
-- 但 `TEST-005` 尚未完成：还没有在纯净 Windows 机器上做最终首启验证，因此暂不建议对外宣称“完全开箱即用已验收”
+- 当前阶段更准确地说是“Windows 小白包内部验收中”，还不能算“正式对外已验收”
+- `TEST-005` 尚未完成：还没有在纯净 Windows 机器上做最终首启验证，因此暂不建议对外宣称“完全开箱即用”
 - macOS / Linux 当前仍偏技术向，不属于已完成的小白正式发行包
 
 本仓库用于打包和分发 OpenClaw 的跨平台部署工具。当前优先推进 **Windows 小白包**，macOS / Linux 仍以技术向启动链路为主；同时支持 **预装版（fat）** 和 **联网版（slim）** 两种分发模式。
@@ -36,7 +36,11 @@ openclaw-bootstrap/
 │   ├── data/openclaw.json           #   预置默认配置
 │   └── README.md                    #   用户使用说明
 │
-├── openclaw/                        # OpenClaw 官方源码（克隆或 submodule）
+├── openclaw/                        # OpenClaw 官方源码（可直接放在仓库根）
+├── openclaw-portable/               # 便携包样例与兼容的嵌套源码布局
+│   ├── openclaw/                    #   Windows builder 也可自动识别这里的源码
+│   ├── start.bat                    #   样例启动器
+│   └── README.md                    #   样例分发说明
 │
 ├── dist/                            # 构建产物输出目录（已 .gitignore）
 │
@@ -46,6 +50,8 @@ openclaw-bootstrap/
 ├── compose.yaml                     # Docker Compose 编排模板
 └── Dockerfile                       # Docker 构建镜像
 ```
+
+> 当前 Windows 构建脚本会自动识别 `openclaw/` 或 `openclaw-portable/openclaw/` 作为源码目录，因此 README 里的两种布局都属于受支持路径。
 
 ---
 
