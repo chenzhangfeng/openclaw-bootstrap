@@ -53,6 +53,17 @@
   - 已确认当前主要未完成项已收敛为 `TEST-005` 纯净 Windows 首启验证，而不是 fat 包构建本身
   - `README.md` 已补充当前仓库实际支持的源码布局，并明确当前阶段仍属内部验收中
 
+- 日期：2026-04-10
+- 切片编号：`SLICE-006`
+- 已执行验证：
+  - 人工核对 `docs/novice-release-delivery/DOMAINS/windows-prepare-build-automation.md`
+  - 人工对照 `build/build-windows.ps1`、`tools/environment-assets/windows/fetch-official-assets.ps1`、`tools/environment-assets/windows/prefetch-playwright-browsers.ps1`
+  - 人工复核 prepare-build 自动化方案中的源码选择、缓存路径、完整性校验、Git 来源、网络参数与 pnpm 版本约束
+- 结果结论：
+  - 已确认原方案在“源码选择优先级”“Node.js 双缓存路径”“缓存完整性与失败恢复”上存在需要先修订的设计空洞
+  - 已将计划修订为“manifest 优先选源、`downloads/` 为唯一权威缓存源、移除 `-PrepareOnly`、补齐 Git/代理/超时/重试/pnpm 版本约束”的实现基线
+  - 当前可以在修订后的方案上进入 Slice A 实施，而不需要继续停留在抽象讨论
+
 ## 部分完成 / 跳过说明
 
 - 原因：
