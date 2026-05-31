@@ -21,7 +21,7 @@
   - 类型：`slice`
   - 编号：`SLICE-005`
 - 当前分支：`main`
-- 当前 commit：`PENDING_COMMIT`
+- 当前 commit：`223532e964d4c796899a93f317290557dcfe453a`
 - 当前相关文档：
   - `README.md`
   - `OUTLINE.md`
@@ -71,4 +71,4 @@
 - 合法停点原因：`missing_external_info`
 - 停点申请证据：`2026-04-05 Chromium-only prefetch smoke failed because Playwright browser CDN downloads repeatedly reset/timed out; TEST-005 still lacks a clean Windows validation machine`
 - 停点若通过后的受影响下一步：`Rerun the Chromium-only prefetch/build comparison when Playwright CDN access is available, then execute TEST-005 on a clean Windows machine`
-- 停点新鲜度校验：`state=pending checkpoint=pending evidence=yes commit=pending`
+- 停点新鲜度校验：`state=yes checkpoint=yes evidence=yes commit=yes`

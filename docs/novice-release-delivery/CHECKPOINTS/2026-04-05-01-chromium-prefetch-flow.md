@@ -34,5 +34,5 @@
 
 ## Git
 
-- Commit: `PENDING_COMMIT`
-- Notes: Stable-node commit will be attempted after checkpoint creation.
+- Commit: `223532e964d4c796899a93f317290557dcfe453a`
+- Notes: Stable node is committed. `STATE.md` is intentionally kept in the working tree with the same hash synced after commit, instead of creating a second bookkeeping-only commit.
